@@ -76,7 +76,15 @@ The server independently enforces these rules even if you request a tool call. V
           if (!state.verifiedCustomerId) { result = { updated: false, message: "Verification required before updating a ticket." }; add("Ticket update blocked", "Customer identity has not been verified.", "blocked"); }
           else { result = updateTicket(String(args.ticket_id || ""), state.verifiedCustomerId, String(args.note || "")); add("Ticket update", result.message, result.updated ? "success" : "failed"); }
         } else { result = { error: "Unknown tool." }; add("Unknown tool", "Tool call was rejected.", "failed"); }
-        results.push({ functionResponse: { name: call.name, response: result, ...(call.id ? { id: call.id } : {}) } });
+        results.push({
+  functionResponse: {
+    name: call.name,
+    response: Array.isArray(result)
+      ? { orders: result }
+      : result,
+    ...(call.id ? { id: call.id } : {})
+  }
+});
       }
       contents.push({ role: "user", parts: results });
     }
